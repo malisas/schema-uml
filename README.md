@@ -36,6 +36,7 @@ The type_header_comments file contains lines of tab-delimited descriptions of da
 sh make_uml.sh
 
 ### Example UML diagram  
-(.png for display purposes, so no cluster hyperlinks)
+ 
+(grey clusters in .svg should be click-able)
 
-![example uml](example_svgs/master_uml_2016-02-25.png)
+![example uml2](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-02-25.svg)
