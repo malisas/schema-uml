@@ -202,8 +202,6 @@ def parse_avprs(avpr_files, cluster_order, url_file, type_comments_file):
     and a set of (container, containee) containment tuples, and a set of
     (referencer, referencee) ID reference tuples.
 
-    Edit: Optional clusters can also be specified (in place of the specified avpr_files) and returned
-
     """
 
     # Holds a dict from cluster key to full url. The key corressponds to a key in clusters, e.g. Key: reads.avdl    Value: (the url)
