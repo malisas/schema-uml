@@ -1,10 +1,13 @@
+**Author(s):** A lot of the core code is from Adam Novak's original version: https://github.com/ga4gh/schemas/pull/297 . Malisa Smith added clusters, urls, colors, and header comments.  
+**Date of this version:** February 24, 2016
+
+* * * * * * * * * *
+
 Visualize (.avdl format) schema files as a UML diagram using Graphviz.
 
 This project creates a schema UML diagram from a list of github URL's which end in .avdl.  
 It uses python to construct a .dot file, which is read by Graphviz's dot program to make a .svg diagram.  
 It is designed for use with ga4gh avro schema files, e.g. https://github.com/ga4gh/schemas/tree/master/src/main/resources/avro
-
-* * * * * * * * * * * * * * * * * * 
 
 ### To create the diagram:
 
@@ -32,10 +35,7 @@ The type_header_comments file contains lines of tab-delimited descriptions of da
 
 sh make_uml.sh
 
+### Example UML diagram  
+(.png for display purposes, so no cluster hyperlinks)
 
-* * * * * * * * * * * * * * * * * * 
-
-### Additional information:
-
-**Author(s):** A lot of the core code is from Adam Novak's original version: https://github.com/ga4gh/schemas/pull/297 . Malisa Smith added clusters, urls, colors, and header comments.  
-**Date of this version:** February 24, 2016
+![example uml](example_svgs/master_uml_2016-02-25.png)
