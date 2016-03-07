@@ -1,4 +1,4 @@
-**Author(s):** A lot of the core code is from Adam Novak's original version: https://github.com/ga4gh/schemas/pull/297 . Malisa Smith added clusters, urls, colors, and header comments.  
+**Author(s):** A lot of the core code is from [Adam Novak's original version](https://github.com/ga4gh/schemas/pull/297). Malisa Smith added clusters, urls, colors, and header comments. License of the original (and derived) work is under LICENSE.txt.
 **Date of this version:** February 24, 2016
 
 * * * * * * * * * *
@@ -37,6 +37,6 @@ sh make_uml.sh
 
 ### Example UML diagram  
  
-(grey clusters in .svg should be click-able)
+(grey clusters in image should be click-able when viewing raw svg)
 
 ![example uml2](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-02-25.svg)
