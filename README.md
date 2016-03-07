@@ -1,4 +1,4 @@
-**Author(s):** A lot of the core code is from [Adam Novak's original version](https://github.com/ga4gh/schemas/pull/297). Malisa Smith added clusters, urls, colors, and header comments. License of the original (and derived) work is under LICENSE.txt.
+**Author(s):** A lot of the core code is from [Adam Novak's original version](https://github.com/ga4gh/schemas/pull/297). Malisa Smith added clusters, urls, colors, and header comments. License of the original (and derived) work is under LICENSE.txt.  
 **Date of this version:** February 24, 2016
 
 * * * * * * * * * *
