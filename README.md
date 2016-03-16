@@ -36,7 +36,15 @@ The type_header_comments file contains lines of tab-delimited descriptions of da
 sh make_uml.sh
 
 ### Example UML diagram  
- 
-(grey clusters in image should be click-able when viewing raw svg)
 
-![example uml2](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-02-25.svg)
+[Here](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-03-07.svg)
+
+Grey clusters in image should are click-able when viewing raw svg.  
+
+### Limitations
+
+Some edges and data structures may need to be manually modified or added in the dot file. You should check to make sure all data structures are properly represented in the UML diagram.
+
+Referential edge-finding between data-structure fields is based on "id" string matching, e.g. "analysisId" will point to "Analysis" object. Non-id references will not be found. Containments of objects are based on complete string matches to field types.
+
+If there is more than one instance of a data structure with the same name (e.g. "Evidence" might appear twice in the input avro files), it will only be drawn once. Technically this should be illegal anyway. If you want to have two objects with the same name, you must manually edit the dot file. Two objects with the same name will also cause edge-finding problems.
