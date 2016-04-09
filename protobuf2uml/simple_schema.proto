@@ -1,0 +1,192 @@
+// 2016-03-25 Malisa Smith
+// This file is a butchering of the GA4GH schema. https://github.com/ga4gh/schemas/
+// The GA4GH schema has been heavily altered to represent the bare minimum of concepts from 
+// TCGA maf (mutation annotation format) and patient data files.
+// This file is only intended for practice working with protocol buffers and data loading
+// in the BMEG system.
+//
+//
+// ***NONE OF THIS IS PERMANENTLY ACCEPTED***
+// ***Many field descriptions/comments below have not been modified from GA4GH, so they probably won't make sense in this context.***
+
+syntax = "proto3";
+
+package ga4gh;
+
+// import "google/protobuf/struct.proto";
+
+// Indicates the associated DNA strand for some data item.
+enum Strand {
+  STRAND_UNSPECIFIED = 0;
+
+  // The negative (-) strand.
+  NEG_STRAND = 1;
+
+  // The postive (+) strand.
+  POS_STRAND = 2;
+}
+
+// A `Position` is one or more (consecutive***) bases in some `Reference`. A `Position` is
+// represented by a `Reference` name, and a base number on that `Reference`
+// (0-based).
+// ***Modified from GA4GH to include end position.***
+message Position {
+  // The name of the `Reference` on which the `Position` is located.
+  // (e.g. `chr20` or `X`)
+  string reference_name = 1;
+
+  // The 0-based offset from the start of the forward strand for that
+  // `Reference`. Genomic positions are non-negative integers less than
+  // `Reference` length.
+  //
+  // For Variant Calls: The start position at which this variant occurs (0-based).
+  // This corresponds to the first base of the string of reference bases.
+  // Genomic positions are non-negative integers less than reference length.
+  // Variants spanning the join of circular genomes are represented as
+  // two variants one on each side of the join (position 0).
+  int64 start = 2;
+
+  // The end position (exclusive), resulting in [start, end) closed-open
+  // interval.
+  //
+  // For Variantcalls: This is typically calculated by `start + referenceBases.length`.
+  int64 end = 3;
+
+  // Strand the position is associated with.
+  Strand strand = 4;
+}
+
+// Here, a VariantCall is a combination of the 'Variant' and 'Call'
+// types in GA4GH. Therefore it contains information about 1) genomic location
+// (reserved for 'Variant' in GA4GH) and 2) a particular sample's genotype at that
+// location (reserved for `Call` in GA4GH). Sample-id in
+// GA4GH is contained within 'CallSet'. Here it is a VariantCall field.
+// Genomic location has been replaced by a 'Position' object.
+//
+message VariantCall {
+  // The call ID.
+  string id = 1;
+
+  // The sample this call set's data was generated from.
+  // Note: the current API does not have a rigorous definition of sample.
+  // Therefore, this field actually contains an arbitrary string, typically
+  // corresponding to the sampleId field in the read groups used to generate
+  // this call set.
+  string bioSampleId = 2;
+
+  Position position = 3;
+
+  // The reference bases for this variant. They start at the given start
+  // position. e.g. "T"
+  string reference_bases = 4;
+
+  // The genotype of this variant call. GA4GH uses int32. Here it is string.
+  //
+  // A 0 value represents the reference allele of the associated `Variant`. Any
+  // other value is a 1-based index into the alternate alleles of the associated
+  // `Variant`.
+  //
+  // If a variant had a referenceBases field of "T", an alternateBases
+  // value of ["A", "C"], and the genotype was [2, 1], that would mean the call
+  // represented the heterozygous value "CA" for this variant. If the genotype
+  // was instead [0, 1] the represented value would be "TA". Ordering of the
+  // genotype values is important if the phaseset field is present.
+  //
+  // GA4GH uses int32. Here it is string.
+  repeated string genotype = 5;
+
+  // A map of additional variant call information, including a Feature Id for now...
+  map<string, string> info = 6;
+}
+
+// Annotation of a contiguous region of a sequence.
+// An example might be a gene or a protein.
+// For example, a position X might corresponds to gene/Feature TP53.
+//
+message Feature {
+    // Id of this annotation node.
+    string id = 1;
+
+    // position at which this feature occurs (0-based).
+    // Features spanning the join of circular genomes are represented as
+    // two features one on each side of the join (position 0).
+    Position position = 2;
+
+    // Feature that is annotated by this region.  Normally, this will be a term in
+    // the Sequence Ontology. Identified features as "gene", etc...
+    // For now, just use strings instead of OntologyTerms
+    // OntologyTerm featureType;
+    string featureType = 3;
+
+    // Data dump/placeholder field.
+    // 
+    // Name/value attributes of the annotation.  Attribute names follow the GFF3
+    // naming convention of reserved names starting with an upper cases
+    // character, and user-define names start with lower-case.  Most GFF3
+    // pre-defined attributes apply, the exceptions are ID and Parent, which are
+    // defined as fields. Additional, the following attributes are added:
+    // * Score - the GFF3 score column
+    // * Phase - the GFF3 phase column for CDS features.
+    map<string, string> attributes = 4;
+}
+
+// How does a particular mutation affect a transcript/protein?
+// 
+// VariantCallEffect is most similar to the TranscriptEffect,
+// VariantAnnotation, and HGVSAnnotation concepts in 
+// https://github.com/ga4gh/schemas/blob/variation_annotation/src/main/resources/avro/alleleAnnotations.avdl
+//
+// But MUCH simplified.
+message VariantCallEffect {
+  string id = 1;
+
+  string variantCallId = 2;
+
+  // For now, a placeholder field/data dump of maf file fields such as trv_type, c_position, and amino_acid_change
+  // (Might want to consider stealing HGVS annotation data structure from GA4GH for latter two)
+  map<string, string> info = 3;
+
+  // Associated Features
+  repeated string featureIds = 4;
+}
+
+// From GA4GH:
+//    A BioSample refers to a unit of biological material from which the substrate
+//   molecules (e.g. genomic DNA, RNA, proteins) for molecular analyses (e.g.
+//   sequencing, array hybridisation, mass-spectrometry) are extracted. Examples
+//   would be a tissue biopsy, a single cell from a culture for single cell genome
+//   sequencing or a protein fraction from a gradient centrifugation.
+//   Several instances (e.g. technical replicates) or types of experiments (e.g.
+//   genomic array as well as RNA-seq experiments) may refer to the same BioSample.
+//   In the context of the GA4GH metadata schema, BioSample constitutes the central
+//   reference object.
+// 
+// Heavily simplified for BMEG.
+message BioSample {
+  // unique in context of server
+  string id = 1;
+
+  // label or symbolic identifier for the biosample, from the original datasource
+  // 
+  // In the context of TCGA, might be TCGA-A1-A0SB-01A-11D-A142-09_TCGA-A1-A0SB-10B-01D-A142-09
+  // this is a tumor and normal id concatenated together....assuming a VariantCall only involves
+  // one BioSample (bad practice).
+  string name = 2;
+
+  // The id of the individual this biosample was derived from.
+  string individualId = 3;
+
+  // When necessary, some way to add BioSample observations might be nice, like: map<string, sring> observations = 4;
+}
+
+message Individual {
+  // unique in context of server
+  string id = 1;
+
+  // label or symboli cidentifier for Individual, from original database.
+  // In the context of TCGA, might be "TCGA-AG-3582" from "barcode" column in summary_patient_metadata_pancan.tsv
+  string name = 2;
+
+  // placeholder data dump of remaining 591 columns in summary_patient_metadata_pancan.tsv
+  map<string, string> observations = 3;
+}
