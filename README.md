@@ -8,4 +8,4 @@ Adam Novak originally wrote code to visualize Avro schema files: [1](https://git
 
 **avro2uml** builds on his original code-base to add in additional features like data clusters, clickable clusters, and some amount of automation.
 
-**protobuf2uml** is the same idea, but using Protocol Buffers-described schemas instead of Avro. It is still a work in progress.
+**protobuf2uml** is the same idea, but using Protocol Buffers-described schemas instead of Avro.
