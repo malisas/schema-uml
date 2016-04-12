@@ -1,1 +1,3 @@
 protobuf2uml/__pycache__/*
+protobuf2uml/misc/*
+protobuf2uml/schemas_proto/*

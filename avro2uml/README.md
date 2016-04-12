@@ -39,7 +39,7 @@ sh make_uml.sh
 
 [Here](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-03-07.svg)
 
-Grey clusters in image should are click-able when viewing raw svg.  
+Grey clusters in image are click-able when viewing raw svg.  
 
 ### Limitations
 

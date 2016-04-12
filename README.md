@@ -1,6 +1,6 @@
 ### schema-uml motivation
 
-Avro and Protocol Buffers are schema-description languages. Schema files (e.g. [here](https://en.wikipedia.org/wiki/Protocol_Buffers#Example) can get difficult to understand when there are lots of data structures and multiple files, so it is helpful to visualize the relationships between the data structures in a [UML diagram](https://en.wikipedia.org/wiki/Unified_Modeling_Language).
+Avro and Protocol Buffers are schema-description languages. Schema files (e.g. [here](https://en.wikipedia.org/wiki/Protocol_Buffers#Example)) can get difficult to understand when there are lots of data structures and multiple files, so it is helpful to visualize the relationships between the data structures in a [UML diagram](https://en.wikipedia.org/wiki/Unified_Modeling_Language).
 
 ### Contents of this directory
 
