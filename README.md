@@ -1,6 +1,6 @@
 ### schema-uml motivation
 
-Avro and Protocol Buffers are schema-description languages. Schema files (e.g. [here](https://en.wikipedia.org/wiki/Protocol_Buffers#Example)) can get difficult to understand when there are lots of data structures and multiple files, so it is helpful to visualize the relationships between the data structures in a [UML diagram](https://en.wikipedia.org/wiki/Unified_Modeling_Language).
+Avro and Protocol Buffers are schema-description languages. Schema files (e.g. [here](https://en.wikipedia.org/wiki/Protocol_Buffers#Example)) can be difficult to understand when there are lots of data structures and multiple files, so it is helpful to visualize the relationships between the data structures in a [UML diagram](https://en.wikipedia.org/wiki/Unified_Modeling_Language). Example: [here](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-03-07.svg)
 
 ### Contents of this directory
 
@@ -8,4 +8,4 @@ Adam Novak originally wrote code to visualize Avro schema files: [1](https://git
 
 **avro2uml** builds on his original code-base to add in additional features like data clusters, clickable clusters, and some amount of automation.
 
-**protobuf2uml** is the same idea, but using Protocol Buffers-described schemas instead of Avro. It is still a work in progress.
+**protobuf2uml** is the same idea, but using Protocol Buffers-described schemas instead of Avro.

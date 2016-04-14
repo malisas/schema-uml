@@ -1,3 +1,6 @@
 protobuf2uml/__pycache__/*
 protobuf2uml/misc/*
 protobuf2uml/schemas_proto/*
+protobuf2uml/descriptor_pb2.py
+protobuf2uml/uml.svg
+protobuf2uml/uml.dot

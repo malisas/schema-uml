@@ -12,7 +12,7 @@ https://github.com/google/protobuf/blob/master/src/google/protobuf/descriptor.pr
 
 import argparse, sys, os, itertools, re, textwrap
 from descriptor_pb2 import FileDescriptorSet #note: uses proto2!!
-#import url_converter
+import url_converter
 
 def parse_args(args):
 
@@ -26,6 +26,9 @@ def parse_args(args):
         help="GraphViz file to write a UML diagram to")
     parser.add_argument("--type_comments", type=argparse.FileType("r"),
         help="tab-delimited file with type names and type header comments")
+    parser.add_argument("--urls", type=argparse.FileType("r"),
+        help="file with links to original schema files")
+
 
     return parser.parse_args(args)
 
@@ -37,7 +40,7 @@ def is_trivial_map(nested_type):
     else:
         return False    
 
-#parse a message. Pass in all the dictionries to be updates, as well as the relevant message and its parent message name if applicable
+#parse a message. Pass in all the dictionaries to be updated, as well as the relevant message
 # For now just parse the name, field, nested_type, and enum_type fields in DescriptorProto: https://github.com/google/protobuf/blob/master/src/google/protobuf/descriptor.proto#L92
 # Might later also want to parse oneof_decl, but assume for now I won't be dealing with that.
 def parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message):
@@ -114,7 +117,7 @@ def parse_cluster(cluster, fields, containments, nests, id_targets, id_reference
         parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message)
         #Note: the message will add itself to the cluster
 
-def write_graph(fields, containments, nests, matched_references, clusters, type_comments_file, dot_file):
+def write_graph(fields, containments, nests, matched_references, clusters, type_comments_file, urls_file, dot_file):
 
     # Parse type_comments_file if applicable
     type_comments = {}
@@ -127,6 +130,14 @@ def write_graph(fields, containments, nests, matched_references, clusters, type_
     def break_up_comment(comment):
         wrapper = textwrap.TextWrapper(break_long_words = False, width = 57)
         return "<BR/>".join(wrapper.wrap(comment))
+
+    # Fill in the urls dictionary.
+    urls = {}
+    if urls_file is not None:
+        for url in urls_file:
+            cooked_url = url_converter.get_cooked_url(url.strip())
+            url_key = cooked_url.split("/")[-1]
+            urls[url_key] = cooked_url
 
     # Start a digraph
     dot_file.write("digraph UML {\n")
@@ -171,15 +182,14 @@ def write_graph(fields, containments, nests, matched_references, clusters, type_
 
     # Now define the clusters/subgraphs
     for cluster_name, cluster_types in clusters.items(): #python 2.x uses dict.iteritems() but python 3.x uses dict.items()
-        # Use type_to_node to replace . with _
         dot_file.write("subgraph cluster_{} {{\n".format(cluster_name.replace(".", "_")))
         dot_file.write("\tstyle=\"rounded, filled\";\n")
         dot_file.write("\tcolor=lightgrey;\n")
         dot_file.write("\tnode [style=filled,color=white];\n")
         dot_file.write("\tlabel = \"{}\";\n".format(cluster_name.replace(".", "_")))
 
-        #if cluster_name in urls:
-        #    dot_file.write("\tURL=\"{}\";\n".format(urls[cluster_name]))
+        if cluster_name in urls:
+            dot_file.write("\tURL=\"{}\";\n".format(urls[cluster_name]))
 
         #After all the cluster formatting, define the cluster types
         for cluster_type in cluster_types:
@@ -295,7 +305,7 @@ def main(args):
 
     if options.dot is not None:
         #Now write the diagram to the dot file!
-        write_graph(fields, containments, nests, matched_references, clusters, options.type_comments, options.dot)
+        write_graph(fields, containments, nests, matched_references, clusters, options.type_comments, options.urls, options.dot)
 
 if __name__ == "__main__" :
     sys.exit(main(sys.argv))
