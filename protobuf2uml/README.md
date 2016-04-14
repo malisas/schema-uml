@@ -14,8 +14,8 @@ It is designed around ga4gh protobuf schema files, e.g. https://github.com/ga4gh
 
 **1)** Install graphviz, libprotoc, and python 3.0 (2.7 might work if you edit descriptor2uml.py to use dict.iteritems() instead of dict.items())
 
-http://www.graphviz.org/Download..php  
-https://github.com/google/protobuf/releases  
+http://www.graphviz.org/Download..php
+https://github.com/google/protobuf/releases
 
 **2)** Make sure you have the following files in the same directory:
 
