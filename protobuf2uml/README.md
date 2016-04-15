@@ -33,19 +33,6 @@ The schema_urls file contains a list of github .proto file urls.
 The type_header_comments file contains lines of tab-delimited descriptions of data types, e.g.  
 `ReferenceSet	a reference assembly, e.g. GRCh38`
 
-**4)** Download .proto files of the schema you want to display
-
-You can do this automatically with `sh dl_schemas.sh`, or you can manually download the .proto files into the `schemas_proto` directory.
-
-**5)** (If applicable) Manually remove all user-defined package references from schema files
-
-If one or more of your .proto files are importing from user-defined packages, they will likely not be able to find each other and the `protoc -o MyFileDescriptorSet.pb *` command in `make_uml.sh` will not work.
-
-* The following import statement is fine because it is not a user-defined package: `import "google/protobuf/struct.proto";`   
-* However, the following import statement will not work because of reasons discussed [here](http://stackoverflow.com/a/5439189): `import "ga4gh/common.proto";`  
-* Therefore, change all such import statements to the following (i.e. remove everything but the file-name): `import "common.proto";`
-* (If you really don't want to modify your .proto files, you can change the directory structure to reflect the imports and specify a proto_path to the directory when running protoc in `make_uml.sh`, as discussed in the above link)
-
-**6)** Finally, run:
+**4)** Finally, run:
 
 `sh make_uml.sh`

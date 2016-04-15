@@ -6,6 +6,6 @@ Avro and Protocol Buffers are schema-description languages. Schema files (e.g. [
 
 Adam Novak originally wrote code to visualize Avro schema files: [1](https://github.com/ga4gh/schemas/pull/297) and [2](https://github.com/adamnovak/schemas/tree/autouml2/scripts).
 
-**avro2uml** builds on his original code-base to add in additional features like data clusters, clickable clusters, and some amount of automation.
+**avro2uml** builds on his original code to add in additional features like data clusters, clickable clusters, and some amount of automation.
 
 **protobuf2uml** is the same idea, but using Protocol Buffers-described schemas instead of Avro.
