@@ -14,8 +14,33 @@ It is designed around ga4gh protobuf schema files, e.g. https://github.com/ga4gh
 
 **1)** Install graphviz, libprotoc, and python 3.0 (2.7 might work if you edit descriptor2uml.py to use dict.iteritems() instead of dict.items())
 
-http://www.graphviz.org/Download..php
-https://github.com/google/protobuf/releases
+To install graphviz, `sudo apt-get install graphviz` should work.
+
+Notes for installing protobuf:
+
+As of April 2016, on Ubuntu v14.04 the following command installed an old version of protobuf: `sudo apt-get install protobuf-compiler`, so instead I download the [latest release](https://github.com/google/protobuf/releases/) and installed manually:
+
+`wget https://github.com/google/protobuf/releases/download/v3.0.0-beta-2/protobuf-python-3.0.0-beta-2.tar.gz`
+
+`tar -xvzf protobuf-python-3.0.0-beta-2.tar.gz`
+
+`cd protobuf-3.0.0-beta-2/`
+
+`sudo ./configure`  
+`sudo make`  
+`sudo make check`  
+`sudo make install`  
+`sudo ldconfig`  
+`protoc --version`  
+
+`cd python/`  
+
+`python setup.py`  
+`python setup.py build`  
+`python setup.py test`  
+`sudo python setup.py install`
+
+(I referred to [here](http://www.confusedcoders.com/random/how-to-install-protocol-buffer-2-5-0-on-ubuntu-13-04) and [here](https://github.com/BVLC/caffe/issues/2092#issuecomment-98917616) for protobuf installation help)
 
 **2)** Make sure you have the following files in the same directory:
 
