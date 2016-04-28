@@ -37,7 +37,7 @@ sh make_uml.sh
 
 ### Example UML diagram  
 
-[Here](https://cdn.rawgit.com/malisas/schema-uml/master/example_svgs/master_uml_2016-03-07.svg)
+[Here](https://cdn.rawgit.com/malisas/schema-uml/master/avro2uml/example_svgs/master_uml_2016-03-07.svg)
 
 Grey clusters in image are click-able when viewing raw svg.  
 
