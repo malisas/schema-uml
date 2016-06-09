@@ -43,11 +43,13 @@ def is_trivial_map(nested_type):
 #parse a message. Pass in all the dictionaries to be updated, as well as the relevant message
 # For now just parse the name, field, nested_type, and enum_type fields in DescriptorProto: https://github.com/google/protobuf/blob/master/src/google/protobuf/descriptor.proto#L92
 # Might later also want to parse oneof_decl, but assume for now I won't be dealing with that.
-def parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message):
+def parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message, message_index, edges_from):
     #track all the fields in the message
     fields[message.name] = []
 
-    for field in message.field:
+#    for field in message.field:
+    for field_index in range(0, len(message.field)):
+        field = message.field[field_index]
         fields[message.name].append((field.name, field.type))
         #deal with containments, id_targets, and id_references, if applicable.
         #Containments will be signified by a field.type of 11 (for TYPE_MESSAGE) or 14 (for TYPE_ENUM). I can determine the type of containment by looking at field.type_name
@@ -70,6 +72,8 @@ def parse_message(cluster, fields, containments, nests, id_targets, id_reference
                 destination = field.name.lower()[0:-3]
             destination = destination.replace("_", "")
             id_references.add((message.name, destination, field.name))
+        if field.name.endswith("Edges"):
+            edges_from[(cluster.name, 4, message_index, 2, field_index)] = [message.name, field.name]
 
     for nested_type in message.nested_type:
         #Note: it seems you can define a nested message without actually using it in a field in the outer message. So, a nested_type is not necessarily used in a field.
@@ -98,7 +102,7 @@ def parse_message(cluster, fields, containments, nests, id_targets, id_reference
     #Add the name of the message as a type in the current cluster
     clusters[cluster.name].append(message.name)
 
-def parse_cluster(cluster, fields, containments, nests, id_targets, id_references, clusters):
+def parse_cluster(cluster, fields, containments, nests, id_targets, id_references, edges_from, edges_targets, clusters):
     
     clusters[cluster.name] = []
 
@@ -112,12 +116,25 @@ def parse_cluster(cluster, fields, containments, nests, id_targets, id_reference
         clusters[cluster.name].append(enum.name)
 
     #track all the message-types in the cluster
-    for message in cluster.message_type:
+    #for message in cluster.message_type:
+    for message_index in range(0, len(cluster.message_type)):
+        message = cluster.message_type[message_index]
         #recursively parse each message
-        parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message)
+        parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message, message_index, edges_from)
         #Note: the message will add itself to the cluster
 
-def write_graph(fields, containments, nests, matched_references, clusters, type_comments_file, urls_file, dot_file):
+    # Parse source_code_info for edge targets.
+    for source_location_index in range(0, len(cluster.source_code_info.location)):
+        location = cluster.source_code_info.location[source_location_index]
+        path = tuple(location.path)
+        # Example when split: [' Target: VariantCall Biosample Individual Feature', '']
+        comments = location.leading_comments.split('\n') 
+        if len(comments) > 1 and comments[-2].startswith(" Target:"):
+            targets = comments[-2].split(" ")[2:]
+            edges_targets_key = (cluster.name,) + path # e.g. (samples.proto, 4, 13, 2, 6)
+            edges_targets[edges_targets_key] = targets
+
+def write_graph(fields, containments, nests, matched_references, matched_edges, clusters, type_comments_file, urls_file, dot_file):
 
     # Parse type_comments_file if applicable
     type_comments = {}
@@ -230,6 +247,12 @@ def write_graph(fields, containments, nests, matched_references, clusters, type_
         dot_file.write("{}:{}:w -> {}:id:w\n".format(referencer, referencer_field,
             referencee))
 
+    # Now make the edges which had targets encoded in leading comments
+    for outgoing, targets in matched_edges:
+        # Format is: [['PhenotypeAssociation', 'hasGenotypeEdges'], ['VariantCall', 'Biosample', 'Individual', 'Feature']]]
+        for target in targets:
+            dot_file.write("{}:{}:w -> {}:name:w\n".format(outgoing[0], outgoing[1], target))
+        
 
     # Close the digraph off.
     dot_file.write("}\n")
@@ -258,22 +281,36 @@ def parse_descriptor(descriptor_file):
     # referencer, lower-case target name)
     id_references = set()
 
-    # Holds the field names from each original .avdl file, in order to draw one cluster of fields for each file
+    # Dictionary of fields which act as outgoing edges within messages. 
+    # key: [cluster.name, inferred path in FileDescriptorSet source_code_info...], value: [message.name, field.name]
+    edges_from = {}
+
+    # Dictionary of field name targets which are encoded in comments, found via FileDescriptorSet source_code_info. 
+    # key: [cluster.name, inferred path in FileDescriptorSet source_code_info...], value: [target field types]
+    edges_targets = {}
+
+    # Holds the field names from each original .proto file, in order to draw one cluster of fields for each file
     # Key: cluster/file name     Value: tuple of field names
     clusters = {}
 
     for cluster in descriptor.file:
         #Note: you can pass a dictionary into a function and modify the original since it still refers to the same location in memory I think? (you don't need to pass it back)
-        parse_cluster(cluster, fields, containments, nests, id_targets, id_references, clusters)
+        parse_cluster(cluster, fields, containments, nests, id_targets, id_references, edges_from, edges_targets, clusters)
 
-    #Now match the id references to targets.
+    # Now match the id references to targets.
     matched_references = set() #will contain tuples of strings, i.e. (referencer, referencer_field, referencee)
     #id_targets_keys_lowercase = [key.lower() for key in id_targets.keys()]
     for id_reference in id_references:
         if id_reference[1] in id_targets:
             matched_references.add((id_reference[0], id_reference[2], id_targets[id_reference[1]][0]))
 
-    return (fields, containments, nests, matched_references, clusters)
+    # Now match outgoing edge fields (ending with "Edges") to their targets found in source_code_info leading comments.
+    matched_edges = []
+    for key, value in edges_from.items():
+        if key in edges_targets:
+            matched_edges.append([value, edges_targets[key]])
+
+    return (fields, containments, nests, matched_references, matched_edges, clusters)
 """
     #printing. test!
     print("\n*********************\nPRINTING fields\n(parent-type-name: [(field-name, field-type)]\n*********************\n")
@@ -296,16 +333,19 @@ def parse_descriptor(descriptor_file):
 
     print("\n*********************\nPRINTING matched_references\n(referencer, referencer_field, referencee)\n*********************\n")
     print(matched_references)
+
+    print("\n*********************\nPRINTING matched_edges\n*********************\n")
+    print(matched_edges)
 """
     
 def main(args):
     options = parse_args(args) # This holds the nicely-parsed options object
 
-    (fields, containments, nests, matched_references, clusters) = parse_descriptor(options.descriptor)
+    (fields, containments, nests, matched_references, matched_edges, clusters) = parse_descriptor(options.descriptor)
 
     if options.dot is not None:
         #Now write the diagram to the dot file!
-        write_graph(fields, containments, nests, matched_references, clusters, options.type_comments, options.urls, options.dot)
+        write_graph(fields, containments, nests, matched_references, matched_edges, clusters, options.type_comments, options.urls, options.dot)
 
 if __name__ == "__main__" :
     sys.exit(main(sys.argv))

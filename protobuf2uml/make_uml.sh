@@ -26,11 +26,11 @@ protoc descriptor.proto --python_out=.
 
 # convert .proto files into a serialized FileDescriptorSet for input into descriptor2uml.py
 cd schemas_proto
-protoc -o MyFileDescriptorSet.pb *
+protoc --include_source_info -o MyFileDescriptorSet.pb *
 cd ../
 
 # Make the dot file which describes the UML diagram. The type_header_comments file can be empty (or you can remove the option altogether)
-python descriptor2uml.py --descriptor ./schemas_proto/MyFileDescriptorSet.pb --dot uml.dot --type_comments type_header_comments --urls schema_urls
+python descriptor2uml.py --descriptor ./schemas_proto/MyFileDescriptorSet.pb --dot uml.dot --urls schema_urls #--type_comments type_header_comments 
 
 # Finally, draw the UMl diagram
 dot uml.dot -T svg -o uml.svg
