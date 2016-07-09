@@ -15,7 +15,8 @@ done
 # Replace user-defined package imports with no path. This allows proto files to find each other.
 #For example,     import "ga4gh/common.proto";       becomes       import "common.proto";
 for proto_file in schemas_proto/*; do
-    sed -i -r '/^import "[A-Za-z0-9/_]+.proto";/ {/^import "google\/protobuf\/[A-Za-z0-9_]+.proto";/!  {s/^import "[A-Za-z0-9/_]+\/([A_Za-z0-9_]+).proto";/import "\1.proto";/}}' $proto_file
+    sed -e 's:ga4gh/::g' $proto_file > $proto_file.tmp && mv $proto_file.tmp $proto_file
+    # sed -i '' s/ga4gh\///g $proto_file
 done
 
 # Remove any temporary files in the schemas_proto directory which have have been created as a result of editing, etc:
