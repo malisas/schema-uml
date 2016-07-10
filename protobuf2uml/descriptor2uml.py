@@ -43,7 +43,7 @@ def is_trivial_map(nested_type):
 #parse a message. Pass in all the dictionaries to be updated, as well as the relevant message
 # For now just parse the name, field, nested_type, and enum_type fields in DescriptorProto: https://github.com/google/protobuf/blob/master/src/google/protobuf/descriptor.proto#L92
 # Might later also want to parse oneof_decl, but assume for now I won't be dealing with that.
-def parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message, message_index, edges_from):
+def parse_message(cluster, fields, containments, nests, id_targets, id_references, clusters, message, message_index=None, edges_from=None):
     #track all the fields in the message
     fields[message.name] = []
 
